@@ -1,0 +1,10 @@
+{
+  "name": "factor",
+  "private": true,
+  "dependencies": {
+    "jquery": "~1.11.0",
+    "modernizr": "~2.6.2",
+    "respond": "~1.4.2",
+  },
+  "devDependencies": {}
+}
