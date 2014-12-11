@@ -6,8 +6,10 @@ var gulp = require('gulp');
 
 
 //////////////////////
-// Load Gulp Plugins
-var $ = require('gulp-load-plugins')();
+// Load Plugins
+var $ = require('gulp-load-plugins')(),
+    server = $.livereload(),
+    colors = require('colors');
 
 
 //////////////////////
@@ -32,14 +34,22 @@ gulp.task('styles', function () {
     ];
 
     return gulp.src('app/styles/main.scss')
-          .pipe($.changed('.tmp/styles'))
-          .pipe($.plumber({errorHandler: onError}))
-          .pipe($.rubySass({
-              precision: 10,
-              loadPath: ['app/bower_components/']
-          }))
-          .pipe($.postcss(processors))
-          .pipe(gulp.dest('.tmp/styles'))
+        .pipe($.changed('.tmp/styles'))
+        .pipe($.plumber({errorHandler: onError}))
+        .pipe($.rubySass({
+            precision: 10,
+            loadPath: ['app/bower_components/']
+        }))
+        .pipe($.postcss(processors))
+        .pipe(gulp.dest('.tmp/styles'))
+        .pipe($.size());
+});
+
+
+//////////////////////
+// Build Scripts
+gulp.task('scripts', function () {
+    return gulp.src('app/scripts/**/*.js')
           .pipe($.size());
 });
 
@@ -48,7 +58,15 @@ gulp.task('styles', function () {
 // Handle HTML
 gulp.task('html', function () {
     gulp.src('./app/*.html')
-        .pipe($.connect.reload());
+        //.pipe($.w3cjs())
+        //.pipe($.size())
+        .pipe($.fileInclude({
+            prefix: '@@',
+            basepath: '@file'
+        }))
+        .pipe(gulp.dest('app/views'));
+
+        server.changed('./app/views/*.html');
 });
 
 
@@ -60,9 +78,9 @@ gulp.task('connect', function () {
         connect = require('connect'),
         app = connect()
         .use(require('connect-livereload')({ port: 35729 }))
+        .use(connect.static('app/views'))
         .use(connect.static('app'))
-        .use(connect.static('.tmp'))
-        .use(connect.directory('app'));
+        .use(connect.static('.tmp'));
 
     portfinder.getPort(function (err, port) { 
         
@@ -71,7 +89,7 @@ gulp.task('connect', function () {
         require('http').createServer(app)
             .listen(port)
             .on('listening', function () {
-                console.log('Started connect web server on http://localhost:' + port);
+                console.log('Started web server on ' + 'http://localhost:'.green + colors.green(port));
             });
     });
 });
@@ -81,13 +99,16 @@ gulp.task('connect', function () {
 // Watch Files
 gulp.task('watch', function () {
 
-    var server = $.livereload();
-
     gulp.watch([
-        './app/*.html'
+        '.tmp/styles/**/*.css',
+        'app/scripts/**/*.js',
+        'app/images/**/*'
     ]).on('change', function (file) {
         server.changed(file.path);
     });
+    
+    gulp.watch('app/*.html', ['html']);
+    gulp.watch('app/styles/**/*.scss', ['styles']);
 });
 
 

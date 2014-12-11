@@ -6,17 +6,7 @@
 ////////////////////////////////
 // CSS Reset
 @import "sass-meyer-reset/sass-meyer-reset";
-
-main {
-    display:block;
-}
-
-
-////////////////////////////////
-// Bourbon, Neat & Bitters
-// @import "bourbon/app/assets/stylesheets/bourbon";
-// @import "neat/app/assets/stylesheets/neat";
-// @import "bitters/app/assets/stylesheets/base";
+main {display: block} // correct IE8 rendering
 
 
 ////////////////////////////////
@@ -51,4 +41,9 @@ main {
     position: fixed;
     overflow-x: hidden;
     overflow-y: scroll;
+}
+
+body {
+    background: red;
+    color: #fff;
 }
